@@ -42,13 +42,11 @@ def create_args(args=argparse.Namespace()):
 def create_tokenizer(args):
     if args.tokenizer_custom:
         tokenizer = Tokenizer.from_file(args.tokenizer_file)
-        encode = lambda sample: tokenizer.encode(sample).ids
-        return encode
+        return lambda sample: tokenizer.encode(sample).ids
     else:
         transformers.GPT2TokenizerFast.max_model_input_sizes['gpt2'] = 1e20
         tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2')
-        encode = lambda sample: tokenizer.encode(sample)
-        return encode
+        return lambda sample: tokenizer.encode(sample)
 
 
 def process_files(args):
@@ -82,16 +80,15 @@ def process_files(args):
         else:
             with concurrent.futures.ProcessPoolExecutor(args.run_num_processes) as executor:
                 def map_with_zip_args(f, args):
-                    for result in executor.map(f, *zip(*args)):
-                        yield result
+                    yield from executor.map(f, *zip(*args))
+
                 process(files_chunks, map_with_zip_args)
 
     def yield_chunks():
         files = os.listdir(f'{args.data_bucket_path}')
-        for files_chunk in partition(l=files, n=args.run_num_processes):
-            yield files_chunk
+        yield from partition(l=files, n=args.run_num_processes)
 
-    print(f'processing', flush=True)
+    print('processing', flush=True)
     process_chunks(yield_chunks())
 
 
@@ -131,8 +128,7 @@ def process_file(args, in_file, out_file):
 
 def create_fs_data_iter(in_file):
     with open(in_file, 'r') as f:
-        for line in f:
-            yield line
+        yield from f
 
 
 def _int64_feature(value):

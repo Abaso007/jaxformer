@@ -52,8 +52,7 @@ def load_records(args):
             tokenizer = Tokenizer.from_str(f.read())
 
         def to_iter(f):
-            for x in f:
-                yield x
+            yield from f
 
         sample = next(to_iter(ds))
         sample_str = tokenizer.decode(sample.numpy(), skip_special_tokens=False)

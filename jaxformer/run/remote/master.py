@@ -161,9 +161,8 @@ class RemoteMaster:
 
         assert step == workers_step
 
-        assert workers_steps == workers_step, workers_steps
-        assert workers_process_counts == process_count, workers_process_counts
-
+        assert workers_step == workers_step, workers_step
+        assert process_count == process_count, process_count
         with print_time(f'Writing ckpt json at step={step}'):
             with open(f'{path}/ckpt.json', 'w') as f:
                 json.dump({'process_count': int(process_count), 'step': int(step)}, f)
@@ -219,7 +218,7 @@ class RemoteMaster:
 
 def create_master(config):
 
-    with print_time(f'Spawning TPU'):
+    with print_time('Spawning TPU'):
         endpoints_ips = spawn_tpu_workers(tpu_user=config['tpu_user'],
             tpu_spawn=config['tpu_spawn'],
             tpu_create_env=config['tpu_create_env'],
@@ -237,7 +236,7 @@ def create_master(config):
             tpu_internal_ips=config['tpu_internal_ips'])
 
 
-    with print_time(f'Creating local worker'):
+    with print_time('Creating local worker'):
         pt = config['opt_params_partitions']
         dp = config['tpu_size_logical'] // config['tpu_cores'] // config['opt_params_partitions']
         mp = config['tpu_cores']

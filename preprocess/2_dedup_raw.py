@@ -47,7 +47,7 @@ def sha256str(s):
 def keep_file(x):
     h = sha256str(x)
 
-    new_hash = not h in hashes
+    new_hash = h not in hashes
     if new_hash:
         hashes.add(h)
 
@@ -65,8 +65,7 @@ def process_file(args, file):
 
     def yield_samples(file):
         with open(file, 'r') as f:
-            for line in f:
-                yield line
+            yield from f
 
     out_file = f'{args.out_bucket_path}/{os.path.basename(file)}'
     out_file_tmp = f'{out_file}.tmp'
@@ -99,7 +98,7 @@ def main():
     total_records_in, total_records_out = 0, 0
 
     with print_time('emunerating files'):
-        files = [f for f in glob(f'{args.data_bucket_path}/*')]
+        files = list(glob(f'{args.data_bucket_path}/*'))
         print(f'{len(files)} files', flush=True)
 
     with print_time(f'hashing files with {args.n_threads} threads'):
@@ -110,7 +109,7 @@ def main():
 
     with print_time(f'serializing {len(hashes)} hashes'):
         print(f'{len(hashes)} hashes', flush=True)
-        with open(f'./2_dedup_raw_hashes.pickle', 'wb') as f:
+        with open('./2_dedup_raw_hashes.pickle', 'wb') as f:
             pickle.dump(hashes, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 

@@ -59,9 +59,7 @@ class Block(hk.Module):
 
         assert x.shape == attn_out.shape == ff_out.shape
 
-        x_out = attn_out + ff_out
-
-        return x_out
+        return attn_out + ff_out
 
 
 class Projection(hk.Module):
@@ -169,6 +167,4 @@ class EmbeddingSharded(hk.Module):
 
     def __call__(self, x):
         input_onehot = jax.nn.one_hot(x, self.in_dim)
-        proj_out = self.proj(input_onehot)
-
-        return proj_out
+        return self.proj(input_onehot)

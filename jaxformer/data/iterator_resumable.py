@@ -109,7 +109,7 @@ def load_records_np(files, seq_len):
     samples_iter = create_iterator_from_tfrecords_files(files, seq_len=seq_len, batch_size=batch_size)
     sample = next(samples_iter)
     print(sample.shape)
-    assert sample.shape[0:2] == batch_size
+    assert sample.shape[:2] == batch_size
     assert sample.shape[2] == seq_len
 
 

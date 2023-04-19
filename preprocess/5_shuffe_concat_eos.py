@@ -92,9 +92,9 @@ def split(a, n):
 
 
 def process_files(args):
-    print(f'listing files', flush=True)
+    print('listing files', flush=True)
 
-    files = [f for f in glob(f'{args.data_bucket_path}/*')]
+    files = list(glob(f'{args.data_bucket_path}/*'))
     random.seed(args.seed)
     random.shuffle(files)
 
@@ -108,7 +108,7 @@ def process_files(args):
 
     t0 = time()
     pool = Pool(processes=args.n_workers)
-    pool.starmap(bind_process_files_chunk, [(i, file_chunk) for (i, file_chunk) in enumerate(files_chunks)])
+    pool.starmap(bind_process_files_chunk, list(enumerate(files_chunks)))
     t1 = time()
     print('time', t1-t0, len(files_chunks))
 

@@ -27,7 +27,7 @@ def main(args):
         s, addr = s_l.accept()
         print(f'Received handshake from master {addr}')
 
-    with print_time(f'Awaiting config from master'):
+    with print_time('Awaiting config from master'):
         print('FN_INIT_CALL (begin)', flush=True)
         fn, args = socket_read(s)
         print('FN_INIT_CALL (end)', flush=True)
@@ -36,12 +36,12 @@ def main(args):
         print(f'mesh = {mesh_shape}')
         print(f'config = {config}')
 
-    with print_time(f'Allocating jax devices'):
+    with print_time('Allocating jax devices'):
         print(f'Jax.device_count() = {jax.device_count()}')
         devices = np.array(jax.devices()).reshape(mesh_shape)
 
     with jax.experimental.maps.Mesh(devices, ('dp', 'pt', 'mp')):
-        with print_time(f'Model initialization'):
+        with print_time('Model initialization'):
             (model, optimizer, lr_schedule), try_save_ckpt, load_ckpt = create_model(config=config)
 
         try:
@@ -115,7 +115,7 @@ def main(args):
                     stats = model.stats()
                     print(f'{step} FN_STATS_RET', stats)
                     socket_write(s, FN_STATS_RET, stats)
-                    
+
                 else:
                     raise Exception(f'Unknown remote function {fn}')
         finally:

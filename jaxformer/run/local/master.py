@@ -13,7 +13,7 @@ class LocalMaster:
 
     def __init__(self, mesh_shape, config):
 
-        with print_time(f'Allocating jax devices'):
+        with print_time('Allocating jax devices'):
             print(f'Jax.device_count() = {jax.device_count()}')
             self.devices = np.array(jax.devices()).reshape(mesh_shape)
 
@@ -60,7 +60,7 @@ def create_master(config):
             emulate_tpu_on_cpu(cores=tpu_cores)
 
 
-    with print_time(f'Creating local worker'):
+    with print_time('Creating local worker'):
         dp = tpu_size_logical // tpu_cores // rep
         mp = tpu_cores
         mesh_shape = (dp, rep, mp)

@@ -56,7 +56,7 @@ def set_default_config(config):
 
 def train(config):
 
-    with print_time(f'Check configuration'):
+    with print_time('Check configuration'):
         config = set_default_config(config)
 
         tpu_size_logical = config['tpu_size_logical']
@@ -75,14 +75,14 @@ def train(config):
         restore_step = config['restore_step']
 
 
-    with print_time(f'Creating master'):
+    with print_time('Creating master'):
         master = create_master(config)
 
 
     if restore_ckpt is not None:
         with print_time(f'Restoring checkpoint at {restore_ckpt}/{restore_step}'):
             if restore_reinit:
-                print(f'Re-initializing optimizer')
+                print('Re-initializing optimizer')
                 ckpt_config = master.load(path=f'{restore_ckpt}/{restore_step}', step=0, ignore_optimizer=True)
                 ckpt_step = 0
             else:
@@ -105,20 +105,14 @@ def train(config):
         with print_time('Loading dataset iterator'):
             print(f'Total tokens per step = {opt_gradient_accumulation_steps * opt_per_replica_batch * (tpu_size_logical // tpu_cores) * model_seq_len}')
             batch_size = (opt_gradient_accumulation_steps, opt_per_replica_batch * tpu_size_logical // tpu_cores)
-            if restore_reinit:
+            if not restore_reinit and restore_ckpt is None or restore_reinit:
                 train_files = list_files(config['data_train_set'])
                 random.shuffle(train_files)
                 test_data_iterator(train_files, model_seq_len)
                 loader_train_iter = create_resumable_iter(train_files, batch_size, model_seq_len, resume_at_file=None, resume_at_batch=None)
             else:
-                if restore_ckpt is None:
-                    train_files = list_files(config['data_train_set'])
-                    random.shuffle(train_files)
-                    test_data_iterator(train_files, model_seq_len)
-                    loader_train_iter = create_resumable_iter(train_files, batch_size, model_seq_len, resume_at_file=None, resume_at_batch=None)
-                else:
-                    train_files = ckpt_config['data_files']
-                    loader_train_iter = create_resumable_iter(train_files, batch_size, model_seq_len, resume_at_file=ckpt_config['data_file'], resume_at_batch=ckpt_config['data_batch'])
+                train_files = ckpt_config['data_files']
+                loader_train_iter = create_resumable_iter(train_files, batch_size, model_seq_len, resume_at_file=ckpt_config['data_file'], resume_at_batch=ckpt_config['data_batch'])
 
             print(train_files)
 
@@ -164,8 +158,8 @@ def train(config):
             t1 = time.time()
 
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            samples_sec = np.prod(data.shape[0:2]) / (t1 - t0)
-            tokens_sec = np.prod(data.shape[0:3]) / (t1 - t0)
+            samples_sec = np.prod(data.shape[:2]) / (t1 - t0)
+            tokens_sec = np.prod(data.shape[:3]) / (t1 - t0)
             steps_sec = 1. / (t1 - t0)
 
             if config['wandb_enabled']:
@@ -180,7 +174,7 @@ def train(config):
 
 def profile(config):
 
-    with print_time(f'Check configuration'):
+    with print_time('Check configuration'):
         config = set_default_config(config)
 
         tpu_size_logical = config['tpu_size_logical']
@@ -193,7 +187,7 @@ def profile(config):
         model_seq_len = config['model_seq_len']
 
 
-    with print_time(f'Creating master'):
+    with print_time('Creating master'):
         master = create_master(config)
 
 

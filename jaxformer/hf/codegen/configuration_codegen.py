@@ -202,25 +202,23 @@ class CodeGenOnnxConfig(OnnxConfigWithPast):
         # We need to order the input in the way they appears in the forward()
         ordered_inputs = OrderedDict({"input_ids": common_inputs["input_ids"]})
 
-        # Need to add the past_keys
         if self.use_past:
             if not is_torch_available():
                 raise ValueError("Cannot generate dummy past_keys inputs without PyTorch installed.")
-            else:
-                import torch
+            import torch
 
-                batch, seqlen = common_inputs["input_ids"].shape
-                # Not using the same length for past_key_values
-                past_key_values_length = seqlen + 2
-                past_shape = (
-                    batch,
-                    self.num_attention_heads,
-                    past_key_values_length,
-                    self._config.hidden_size // self.num_attention_heads,
-                )
-                ordered_inputs["past_key_values"] = [
-                    (torch.zeros(past_shape), torch.zeros(past_shape)) for _ in range(self.num_layers)
-                ]
+            batch, seqlen = common_inputs["input_ids"].shape
+            # Not using the same length for past_key_values
+            past_key_values_length = seqlen + 2
+            past_shape = (
+                batch,
+                self.num_attention_heads,
+                past_key_values_length,
+                self._config.hidden_size // self.num_attention_heads,
+            )
+            ordered_inputs["past_key_values"] = [
+                (torch.zeros(past_shape), torch.zeros(past_shape)) for _ in range(self.num_layers)
+            ]
 
         ordered_inputs["attention_mask"] = common_inputs["attention_mask"]
         if self.use_past:

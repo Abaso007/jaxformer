@@ -188,5 +188,7 @@ def to_f16(t):
 
 
 def global_norm(updates):
-    pre_sqrt = sum([jnp.sum(jnp.square(x)) for x in jax.tree_util.tree_leaves(updates)])
+    pre_sqrt = sum(
+        jnp.sum(jnp.square(x)) for x in jax.tree_util.tree_leaves(updates)
+    )
     return jnp.sqrt(pre_sqrt)

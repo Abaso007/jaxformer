@@ -12,7 +12,7 @@ from jaxformer.utils import run_return_code, sh, sh_ret, par_map, print_time
 
 def spawn_tpu_workers(tpu_user, tpu_spawn, tpu_create_env, tpu_name, tpu_tags, tpu_image, tpu_zone, tpu_version, tpu_size, tpu_network, tpu_subnetwork, tpu_worker_port, tpu_delete, tpu_reserved, tpu_internal_ips):
 
-    tpu_home = f'/home/{tpu_user}' if not tpu_user == 'root' else '/root'
+    tpu_home = f'/home/{tpu_user}' if tpu_user != 'root' else '/root'
 
     tpu_reserved_arg = '--reserved' if tpu_reserved else ''
     tpu_internal_ip_arg = '--internal-ip' if tpu_internal_ips else ''
@@ -25,9 +25,9 @@ def spawn_tpu_workers(tpu_user, tpu_spawn, tpu_create_env, tpu_name, tpu_tags, t
         with print_time('Spawning TPU'):
             tpu_exists = (run_return_code(f'gcloud compute tpus tpu-vm describe {tpu_name} --zone {tpu_zone}') == 0)
 
-            if (not tpu_exists) or (tpu_exists and tpu_delete):
+            if not tpu_exists or tpu_delete:
 
-                if (tpu_exists and tpu_delete):
+                if tpu_exists:
                     print(f'deleting existing {tpu_name}')
                     sh(f'gcloud compute tpus tpu-vm delete {tpu_name} --zone={tpu_zone} --quiet', check_return_code=False)
 
@@ -55,6 +55,4 @@ def spawn_tpu_workers(tpu_user, tpu_spawn, tpu_create_env, tpu_name, tpu_tags, t
         endpoints_ips = [json.loads(s.replace("'", '"'))['ipAddress'] for s in endpoints_json.split(';')]
         assert len(endpoints_ips) == tpu_size // 8
 
-        endpoints = [(worker_ip, tpu_worker_port) for worker_ip in endpoints_ips]
-
-        return endpoints
+        return [(worker_ip, tpu_worker_port) for worker_ip in endpoints_ips]

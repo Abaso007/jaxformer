@@ -307,9 +307,13 @@ def save_config_to_hf_format(params: dict, torch_dtype: str, output_path: FluidP
         "transformers_version": "4.10.0.dev0",
         "tokenizer_class": "GPT2Tokenizer",
         "task_specific_params": {
-            "text-generation": {"do_sample": True, "temperature": 1.0, "max_length": 50}
+            "text-generation": {
+                "do_sample": True,
+                "temperature": 1.0,
+                "max_length": 50,
+            }
         },
-        "torch_dtype": str(torch_dtype).split(".")[-1],
+        "torch_dtype": torch_dtype.split(".")[-1],
         "use_cache": True,
         "vocab_size": params["model_vocab_size"],
     }

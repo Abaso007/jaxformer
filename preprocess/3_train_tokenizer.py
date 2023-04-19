@@ -50,7 +50,7 @@ def train(args, data_iter):
         tokenizer.save(args.tokenizer_file, pretty=True)
 
     with print_time('check'):
-        vocab_chars = [c for c in args.tokenizer_vocab] + ['<|pad|>', '<|bos|>', '<|eos|>']
+        vocab_chars = list(args.tokenizer_vocab) + ['<|pad|>', '<|bos|>', '<|eos|>']
         assert len(vocab_chars) == 30, len(vocab_chars)
         for c1 in tokenizer.get_vocab():
             assert c1 in vocab_chars

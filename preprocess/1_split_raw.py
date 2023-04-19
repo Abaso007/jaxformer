@@ -44,8 +44,7 @@ def create_args(args=argparse.Namespace()):
 def yield_lines(files):
     for file in files:
         with open(file, 'r') as f:
-            for line in f:
-                yield line
+            yield from f
 
 
 def main():
